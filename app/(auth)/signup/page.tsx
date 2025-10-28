@@ -3,11 +3,7 @@ import { requireNoAuth } from '@/lib/auth-utils'
 
 const Page = async () => {
   await requireNoAuth()
-  return (
-    <div>
-      <RegisterForm />
-    </div>
-  )
+  return <RegisterForm />
 }
 
 export default Page

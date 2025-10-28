@@ -23,6 +23,7 @@ import {
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
 import { toast } from 'sonner'
+import Image from 'next/image'
 
 const loginSchema = z.object({
   email: z.email({ error: 'Please enter a valid email address' }),
@@ -57,8 +58,8 @@ const LoginForm = () => {
   }
   const isPending = form.formState.isSubmitting
   return (
-    <div className="flex flex-col gap-6 min-h-screen w-full justify-center items-center">
-      <Card className="min-w-md">
+    <div className="flex flex-col gap-6">
+      <Card>
         <CardHeader className="flex flex-col justify-center items-center">
           <CardTitle>Welcome back</CardTitle>
           <CardDescription>Login to continue</CardDescription>
@@ -72,6 +73,7 @@ const LoginForm = () => {
                 className="w-full"
                 disabled={isPending}
               >
+                <Image src="/github.svg" width={20} height={20} alt='github logo' />
                 Continue with Github
               </Button>
               <Button
@@ -80,6 +82,7 @@ const LoginForm = () => {
                 className="w-full"
                 disabled={isPending}
               >
+                <Image src="/google.svg" width={20} height={20} alt='google logo' />
                 Continue with Google
               </Button>
               <Controller

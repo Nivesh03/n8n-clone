@@ -23,6 +23,7 @@ import {
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
 import { toast } from 'sonner'
+import Image from 'next/image'
 
 const registerSchema = z
   .object({
@@ -61,8 +62,8 @@ const RegisterForm = () => {
   }
   const isPending = form.formState.isSubmitting
   return (
-    <div className="flex flex-col gap-6 min-h-screen w-full justify-center items-center">
-      <Card className="min-w-md">
+    <div className="flex flex-col gap-6">
+      <Card>
         <CardHeader className="flex flex-col justify-center items-center">
           <CardTitle>Get Started</CardTitle>
           <CardDescription>Create an account</CardDescription>
@@ -76,6 +77,7 @@ const RegisterForm = () => {
                 className="w-full"
                 disabled={isPending}
               >
+                <Image src="/github.svg" width={20} height={20} alt='github logo' />
                 Continue with Github
               </Button>
               <Button
@@ -84,6 +86,7 @@ const RegisterForm = () => {
                 className="w-full"
                 disabled={isPending}
               >
+                <Image src="/google.svg" width={20} height={20} alt='google logo' />
                 Continue with Google
               </Button>
               <Controller

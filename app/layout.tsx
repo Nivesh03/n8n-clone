@@ -1,4 +1,5 @@
 import { TRPCReactProvider } from "@/trpc/client";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           {children}
           <Toaster richColors />
+          <ReactQueryDevtools initialIsOpen={false} />
         </TRPCReactProvider>
       </body>
     </html>

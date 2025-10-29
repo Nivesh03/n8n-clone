@@ -1,9 +1,7 @@
 import { LoginForm } from '@/components/auth/login-form'
 import { requireNoAuth } from '@/lib/auth-utils'
 
-const Page = async () => {
+export default async function Page() {
   await requireNoAuth()
   return <LoginForm />
 }
-
-export default Page

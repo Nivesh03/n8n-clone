@@ -17,7 +17,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { WorkflowIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import {
-  useCreateworkflow,
+  useCreateWorkflow,
   useRemoveWorkflow,
   useSuspenseWorkflows,
 } from '../hooks/use-workflows'
@@ -38,7 +38,7 @@ export const WorkflowsList = () => {
 }
 
 export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
-  const createWorkflow = useCreateworkflow()
+  const createWorkflow = useCreateWorkflow()
   const { handleError, modal } = useUpgradeModal()
   const router = useRouter()
   const handleCreate = () => {
@@ -121,7 +121,7 @@ export const WorkflowsError = () => {
 
 export const WorkflowsEmpty = () => {
   const router = useRouter()
-  const createWorkflow = useCreateworkflow()
+  const createWorkflow = useCreateWorkflow()
   const { handleError, modal } = useUpgradeModal()
 
   const handleCreate = () => {

@@ -291,7 +291,7 @@ export const EntityItem = ({
           <div className="flex items-center gap-3">
             {image}
             <div>
-              <CardTitle className="text-balance font-medium">
+              <CardTitle className="text-foreground font-medium">
                 {title}
               </CardTitle>
               {!!subtitle && (

@@ -1,4 +1,13 @@
-import { requireAuth } from "@/lib/auth-utils"
+import {
+  Editor,
+  EditorError,
+  EditorLoading,
+} from '@/features/editor/components/editor'
+import { EditorHeader } from '@/features/editor/components/editor-header'
+import { requireAuth } from '@/lib/auth-utils'
+import { HydrateClient } from '@/trpc/server'
+import { Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 
 interface PageProps {
   params: Promise<{
@@ -7,7 +16,18 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  const { workflowId } = await params
   await requireAuth()
-  return <div>workflowId: {workflowId} Page</div>
+  const { workflowId } = await params
+  return (
+    <HydrateClient>
+      <ErrorBoundary fallback={<EditorError />}>
+        <Suspense fallback={<EditorLoading />}>
+          <EditorHeader workflowId={workflowId} />
+          <main className="flex-1">
+            <Editor workflowId={workflowId} />
+          </main>
+        </Suspense>
+      </ErrorBoundary>
+    </HydrateClient>
+  )
 }

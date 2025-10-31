@@ -15,6 +15,7 @@ export const PlaceholderNode = forwardRef<HTMLDivElement, PlaceholderNodeProps>(
     return (
       <BaseNode
         ref={ref}
+        onClick={onClick}
         className="size-auto border-dashed border-gray-400 bg-card p-4 text-center text-gray-400 shadow-none cursor-pointer hover:border-gray-500 hover:bg-gray-50"
       >
         {children}
@@ -23,7 +24,6 @@ export const PlaceholderNode = forwardRef<HTMLDivElement, PlaceholderNodeProps>(
           style={{ visibility: 'hidden' }}
           position={Position.Top}
           isConnectable={false}
-          onClick={onClick}
         />
         <Handle
           type="source"

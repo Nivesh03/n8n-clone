@@ -1,10 +1,11 @@
 import { Toaster } from '@/components/ui/sonner'
 import { TRPCReactProvider } from '@/trpc/client'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { Provider } from 'jotai'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
-import {NuqsAdapter} from "nuqs/adapters/next/app"
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -32,9 +33,11 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <NuqsAdapter>
-            {children}
-            <Toaster richColors />
-            <ReactQueryDevtools initialIsOpen={false} />
+            <Provider>
+              {children}
+              <Toaster richColors />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Provider>
           </NuqsAdapter>
         </TRPCReactProvider>
       </body>

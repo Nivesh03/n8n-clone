@@ -21,7 +21,9 @@ import {
   ReactFlow,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import { useSetAtom } from 'jotai'
 import { useCallback, useState } from 'react'
+import { editorAtom } from '../store/atoms'
 import { AddNodeButton } from './add-node-button'
 
 export const EditorLoading = () => {
@@ -34,6 +36,7 @@ export const EditorError = () => {
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId)
+  const setEditor = useSetAtom(editorAtom)
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes)
   const [edges, setEdges] = useState<Edge[]>(workflow.edges)
   const onNodesChange = useCallback(
@@ -63,12 +66,16 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
           hideAttribution: true,
         }}
         nodeTypes={nodeComponents}
+        onInit={setEditor}
+        snapToGrid
+        snapGrid={[10,10]}
+        panOnScroll
         fitView
       >
         <Background variant={BackgroundVariant.Lines} />
         <Controls />
         <MiniMap />
-        <Panel position='top-right'>
+        <Panel position="top-right">
           <AddNodeButton />
         </Panel>
       </ReactFlow>

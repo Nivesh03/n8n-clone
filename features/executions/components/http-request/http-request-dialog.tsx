@@ -30,6 +30,13 @@ import { Controller, useForm } from 'react-hook-form'
 import z from 'zod'
 
 const formSchema = z.object({
+  variableName: z
+    .string()
+    .min(1, { message: 'Variable name is required' })
+    .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, {
+      message:
+        'Variable name must start with a letter, underscore or dollar sign and can contain letters, numbers, underscores or dollar signs',
+    }),
   endpoint: z.url({ message: 'Invalid URL' }),
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']),
   body: z.string().optional(),
@@ -50,12 +57,12 @@ export const HttpRequestDialog = ({
   const form = useForm<HTTPFormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      variableName: defaultValues?.variableName || '',
       body: defaultValues?.body || '',
       endpoint: defaultValues?.endpoint || '',
       method: defaultValues?.method || 'GET',
     },
   })
-
   const watchMethod = form.watch('method')
   const showBodyField = ['POST', 'PUT', 'PATCH'].includes(watchMethod)
   const handleSubmit = (values: HTTPFormType) => {
@@ -69,6 +76,7 @@ export const HttpRequestDialog = ({
         body: defaultValues?.body || '',
         endpoint: defaultValues?.endpoint || '',
         method: defaultValues?.method || 'GET',
+        variableName: defaultValues?.variableName || '',
       })
     }
   }, [open, defaultValues, form])
@@ -88,6 +96,30 @@ export const HttpRequestDialog = ({
           className="space-y-8 mt-4"
         >
           <FieldGroup>
+            <Controller
+              name="variableName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field orientation="vertical" data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="http-form-variable-name">
+                    Variable Name
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="http-form-variable-name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="users"
+                  />
+                  <FieldDescription>
+                    Use this name to reference the response data in subsequent
+                    nodes. Eg {'{{users.httpResponse.data}}'}
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
             <Controller
               name="method"
               control={form.control}

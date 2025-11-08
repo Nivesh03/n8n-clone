@@ -7,6 +7,7 @@ import { BaseExecutionNode } from '../base-execution-node'
 import { HttpRequestDialog, type HTTPFormType } from './http-request-dialog'
 
 type HttpRequestNodeData = {
+  variableName?: string
   endpoint?: string
   method?: 'GET' | 'PATCH' | 'POST' | 'PUT' | 'DELETE'
   body?: string
@@ -26,7 +27,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
     setDialogOpen(true)
   }
 
-  const handleSubmit = ({ body, endpoint, method }: HTTPFormType) => {
+  const handleSubmit = (values: HTTPFormType) => {
     setNodes((nodes) =>
       nodes.map((node) => {
         if (node.id === props.id) {
@@ -34,9 +35,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
             ...node,
             data: {
               ...node.data,
-              endpoint: endpoint,
-              method: method,
-              body: body,
+              ...values,
             },
           }
         }

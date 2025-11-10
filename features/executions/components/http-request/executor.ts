@@ -10,9 +10,9 @@ handlebars.registerHelper('json', (context) => {
 })
 
 type HttpRequestData = {
-  variableName: string
-  endpoint: string
-  method: 'GET' | 'PUT' | 'POST' | 'DELETE' | 'PATCH'
+  variableName?: string
+  endpoint?: string
+  method?: 'GET' | 'PUT' | 'POST' | 'DELETE' | 'PATCH'
   body?: string
 }
 
@@ -30,35 +30,37 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
     }),
   )
 
-  if (!data.endpoint) {
-    await publish(
-      httpRequestChannel().status({
-        nodeId,
-        status: 'error',
-      }),
-    )
-    throw new NonRetriableError('HTTP request node: Endpoint is required')
-  }
-  if (!data.variableName) {
-    await publish(
-      httpRequestChannel().status({
-        nodeId,
-        status: 'error',
-      }),
-    )
-    throw new NonRetriableError('HTTP request node: Variable name is required')
-  }
-  if (!data.method) {
-    await publish(
-      httpRequestChannel().status({
-        nodeId,
-        status: 'error',
-      }),
-    )
-    throw new NonRetriableError('HTTP request node: Method is required')
-  }
   try {
     const result = step.run('http-request', async () => {
+      if (!data.endpoint) {
+        await publish(
+          httpRequestChannel().status({
+            nodeId,
+            status: 'error',
+          }),
+        )
+        throw new NonRetriableError('HTTP request node: Endpoint is required')
+      }
+      if (!data.variableName) {
+        await publish(
+          httpRequestChannel().status({
+            nodeId,
+            status: 'error',
+          }),
+        )
+        throw new NonRetriableError(
+          'HTTP request node: Variable name is required',
+        )
+      }
+      if (!data.method) {
+        await publish(
+          httpRequestChannel().status({
+            nodeId,
+            status: 'error',
+          }),
+        )
+        throw new NonRetriableError('HTTP request node: Method is required')
+      }
       const endpoint = handlebars.compile(data.endpoint)(context)
       const method = data.method
       const options: KyOptions = { method }

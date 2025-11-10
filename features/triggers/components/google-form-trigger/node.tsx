@@ -6,7 +6,7 @@ import { BaseTriggerNode } from '../base-trigger-node'
 import { fetchGoogleFormTriggerRealtimeToken } from './actions'
 import { GoogleFormTriggerDialog } from './google-form-trigger-dialog'
 
-export const GoogleFormTrigger = memo((props: NodeProps) => {
+export const GoogleFormTriggerNode = memo((props: NodeProps) => {
   const [dialogOpen, setDialogOpen] = useState(false)
   const nodeStatus = useNodeStatus({
     nodeId: props.id,
@@ -32,4 +32,4 @@ export const GoogleFormTrigger = memo((props: NodeProps) => {
   )
 })
 
-GoogleFormTrigger.displayName = 'GoogleFormTrigger'
+GoogleFormTriggerNode.displayName = 'GoogleFormTriggerNode'

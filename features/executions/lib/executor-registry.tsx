@@ -1,3 +1,4 @@
+import { googleFormTriggerExecutor } from '@/features/triggers/components/google-form-trigger/executor'
 import { manualTriggerExecutor } from '@/features/triggers/components/manual-trigger/executor'
 import { NodeType } from '@/lib/generated/prisma/enums'
 import { httpRequestExecutor } from '../components/http-request/executor'
@@ -8,6 +9,7 @@ type ExecutableNodeType = Exclude<keyof typeof NodeType, 'INITIAL'>
 export const executeRegistry: Record<ExecutableNodeType, NodeExecutor> = {
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
   [NodeType.HTTP_REQUEST]: httpRequestExecutor,
+  [NodeType.GOOGLE_FORM_TRIGGER]: googleFormTriggerExecutor,
 }
 
 export const getExecutorType = (type: ExecutableNodeType): NodeExecutor => {

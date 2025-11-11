@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.44",
     "@ai-sdk/google": "^2.0.24",
+    "@ai-sdk/openai": "^2.0.65",
     "@hookform/resolvers": "^5.2.2",
     "@inngest/realtime": "^0.4.4",
     "@paralleldrive/cuid2": "^3.0.4",

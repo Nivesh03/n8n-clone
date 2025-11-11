@@ -1,0 +1,88 @@
+import type { NodeExecutor } from '@/features/executions/types'
+import { anthropicChannel } from '@/inngest/channels/anthropic'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { generateText } from 'ai'
+import handlebars from 'handlebars'
+import { NonRetriableError } from 'inngest'
+import type { AVAILABLE_MODELS } from './anthropic-dialog'
+handlebars.registerHelper('json', (context) => {
+  const json = JSON.stringify(context, null, 2)
+  return new handlebars.SafeString(json)
+})
+
+type AnthropicData = {
+  variableName?: string
+  model?: (typeof AVAILABLE_MODELS)[number]
+  userPrompt?: string
+  systemPrompt?: string
+}
+
+export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
+  data,
+  nodeId,
+  context,
+  step,
+  publish,
+}) => {
+  await publish(
+    anthropicChannel().status({
+      nodeId,
+      status: 'loading',
+    }),
+  )
+  console.log('data', { data })
+  if (!data.variableName || !data.userPrompt) {
+    await publish(
+      anthropicChannel().status({
+        nodeId,
+        status: 'error',
+      }),
+    )
+    throw new NonRetriableError(
+      'Anthropic Node: Missing properties. Variable name, user prompt are required',
+    )
+  }
+  const systemPrompt = data.systemPrompt
+    ? handlebars.compile(data.systemPrompt)(context)
+    : 'You are a helpful assistant.'
+  const userPrompt = handlebars.compile(data.userPrompt)(context)
+  const credentialValue = process.env.ANTHROPIC_API_KEY
+  const anthropic = createAnthropic({
+    apiKey: credentialValue,
+  })
+
+  try {
+    const { steps } = await step.ai.wrap(
+      'anthropic-generate-text',
+      generateText,
+      {
+        model: anthropic(data.model || "claude-3-7-sonnet-latest"),
+        system: systemPrompt,
+        prompt: userPrompt,
+      },
+    )
+    const text =
+      steps[0].content[0].type === 'text' ? steps[0].content[0].text : ''
+
+    await publish(
+      anthropicChannel().status({
+        nodeId,
+        status: 'success',
+      }),
+    )
+    return {
+      ...context,
+      [data.variableName]: {
+        text,
+      },
+    }
+  } catch (error) {
+    await publish(
+      anthropicChannel().status({
+        nodeId,
+        status: 'error',
+      }),
+    )
+    throw error
+  }
+}

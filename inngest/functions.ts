@@ -1,15 +1,18 @@
 import { getExecutorType } from '@/features/executions/lib/executor-registry'
 import prisma from '@/lib/db'
 import { NonRetriableError } from 'inngest'
+import { anthropicChannel } from './channels/anthropic'
+import { geminiChannel } from './channels/gemini'
 import { googleFormTriggerChannel } from './channels/google-form-trigger'
 import { httpRequestChannel } from './channels/http-request'
 import { manualTriggerChannel } from './channels/manual-trigger'
+import { openaiChannel } from './channels/openai'
 import { stripeTriggerChannel } from './channels/stripe-trigger'
 import { inngest } from './client'
 import { topologicalSort } from './utils'
 
 export const executeWorkflow = inngest.createFunction(
-  { id: 'execute-workflow' },
+  { id: 'execute-workflow', retries: 1 },
   {
     event: 'workflows/execute.workflow',
     channels: [
@@ -17,6 +20,9 @@ export const executeWorkflow = inngest.createFunction(
       manualTriggerChannel(),
       googleFormTriggerChannel(),
       stripeTriggerChannel(),
+      geminiChannel(),
+      openaiChannel(),
+      anthropicChannel(),
     ],
   },
   async ({ event, step, publish }) => {

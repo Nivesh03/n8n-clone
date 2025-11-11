@@ -30,7 +30,6 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
       status: 'loading',
     }),
   )
-  console.log('data', { data })
   if (!data.variableName || !data.userPrompt) {
     await publish(
       openaiChannel().status({

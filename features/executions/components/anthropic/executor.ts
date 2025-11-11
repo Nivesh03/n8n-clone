@@ -30,7 +30,6 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
       status: 'loading',
     }),
   )
-  console.log('data', { data })
   if (!data.variableName || !data.userPrompt) {
     await publish(
       anthropicChannel().status({

@@ -1,5 +1,6 @@
 import type { NodeExecutor } from '@/features/executions/types'
 import { anthropicChannel } from '@/inngest/channels/anthropic'
+import prisma from '@/lib/db'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { generateText } from 'ai'
 import handlebars from 'handlebars'
@@ -12,6 +13,7 @@ handlebars.registerHelper('json', (context) => {
 
 type AnthropicData = {
   variableName?: string
+  credentialId?: string
   model?: (typeof AVAILABLE_MODELS)[number]
   userPrompt?: string
   systemPrompt?: string
@@ -30,7 +32,7 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
       status: 'loading',
     }),
   )
-  if (!data.variableName || !data.userPrompt) {
+  if (!data.variableName || !data.userPrompt || !data.credentialId) {
     await publish(
       anthropicChannel().status({
         nodeId,
@@ -45,9 +47,18 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
     ? handlebars.compile(data.systemPrompt)(context)
     : 'You are a helpful assistant.'
   const userPrompt = handlebars.compile(data.userPrompt)(context)
-  const credentialValue = process.env.ANTHROPIC_API_KEY
+  const credential = await step.run('get-credential', () => {
+    return prisma.credential.findUnique({
+      where: {
+        id: data.credentialId,
+      },
+    })
+  })
+  if (!credential)
+    throw new NonRetriableError('Anthropic Node: Credential not found')
+
   const anthropic = createAnthropic({
-    apiKey: credentialValue,
+    apiKey: credential.value,
   })
 
   try {
@@ -55,7 +66,7 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
       'anthropic-generate-text',
       generateText,
       {
-        model: anthropic(data.model || "claude-3-7-sonnet-latest"),
+        model: anthropic(data.model || 'claude-3-7-sonnet-latest'),
         system: systemPrompt,
         prompt: userPrompt,
       },

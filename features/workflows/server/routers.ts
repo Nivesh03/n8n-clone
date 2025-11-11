@@ -1,5 +1,4 @@
 import { PAGINATION } from '@/config/constants'
-import { inngest } from '@/inngest/client'
 import { sendWorkflowExecution } from '@/inngest/utils'
 import prisma from '@/lib/db'
 import { NodeType } from '@/lib/generated/prisma/enums'
@@ -23,7 +22,7 @@ export const workflowsRouter = createTRPCRouter({
         },
       })
       await sendWorkflowExecution({
-        workflowId: input.id
+        workflowId: input.id,
       })
       return workflow
     }),

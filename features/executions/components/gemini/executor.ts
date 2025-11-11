@@ -1,5 +1,6 @@
 import type { NodeExecutor } from '@/features/executions/types'
 import { geminiChannel } from '@/inngest/channels/gemini'
+import prisma from '@/lib/db'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { generateText } from 'ai'
 import handlebars from 'handlebars'
@@ -12,6 +13,7 @@ handlebars.registerHelper('json', (context) => {
 
 type GeminiData = {
   variableName?: string
+  credentialId?: string
   model?: (typeof AVAILABLE_MODELS)[number]
   userPrompt?: string
   systemPrompt?: string
@@ -30,7 +32,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
       status: 'loading',
     }),
   )
-  if (!data.variableName || !data.userPrompt) {
+  if (!data.variableName || !data.userPrompt || !data.credentialId) {
     await publish(
       geminiChannel().status({
         nodeId,
@@ -38,16 +40,25 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
       }),
     )
     throw new NonRetriableError(
-      'Gemini Node: Missing properties. Variable name, user prompt are required',
+      'Gemini Node: Missing properties. Variable name, user prompt, credentialId are required',
     )
   }
   const systemPrompt = data.systemPrompt
     ? handlebars.compile(data.systemPrompt)(context)
     : 'You are a helpful assistant.'
   const userPrompt = handlebars.compile(data.userPrompt)(context)
-  const credentialValue = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  const credential = await step.run('get-credential', () => {
+    return prisma.credential.findUnique({
+      where: {
+        id: data.credentialId,
+      },
+    })
+  })
+  if (!credential)
+    throw new NonRetriableError('Gemini Node: Credential not found')
+
   const google = createGoogleGenerativeAI({
-    apiKey: credentialValue,
+    apiKey: credential.value,
   })
 
   try {
@@ -68,7 +79,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
     return {
       ...context,
       [data.variableName]: {
-         text,
+        text,
       },
     }
   } catch (error) {
@@ -78,6 +89,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
         status: 'error',
       }),
     )
-    throw error
+    console.error(error)
+    throw new NonRetriableError('Gemini Node: Error generating text')
   }
 }

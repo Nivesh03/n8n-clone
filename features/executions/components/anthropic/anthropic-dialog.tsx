@@ -24,7 +24,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useCredentialByType } from '@/features/credentials/hooks/use-credentials'
+import { CredentialType } from '@/lib/generated/prisma/enums'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Image from 'next/image'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import z from 'zod'
@@ -47,6 +50,7 @@ const formSchema = z.object({
       message:
         'Variable name must start with a letter, underscore or dollar sign and can contain letters, numbers, underscores or dollar signs',
     }),
+  credentialId: z.string().min(1, 'Credential ID is required'),
   model: z.enum(AVAILABLE_MODELS),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, { error: 'User prompt is required' }),
@@ -64,10 +68,13 @@ export const AnthropicDialog = ({
   onSubmit,
   defaultValues,
 }: Props) => {
+  const { data: credentials, isLoading: credentialsLoading } =
+    useCredentialByType(CredentialType.ANTHROPIC)
   const form = useForm<AnthropicFormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       variableName: defaultValues?.variableName || '',
+      credentialId: defaultValues?.credentialId || '',
       model: defaultValues?.model || AVAILABLE_MODELS[0],
       systemPrompt: defaultValues?.systemPrompt || '',
       userPrompt: defaultValues?.userPrompt || '',
@@ -82,6 +89,7 @@ export const AnthropicDialog = ({
     if (open) {
       form.reset({
         variableName: defaultValues?.variableName || '',
+        credentialId: defaultValues?.credentialId || '',
         model: defaultValues?.model || AVAILABLE_MODELS[0],
         systemPrompt: defaultValues?.systemPrompt || '',
         userPrompt: defaultValues?.userPrompt || '',
@@ -123,6 +131,55 @@ export const AnthropicDialog = ({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="credentialId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field
+                  orientation="responsive"
+                  data-invalid={fieldState.invalid}
+                >
+                  <FieldContent data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="anthropic-form-credential-id">
+                      Credential
+                    </FieldLabel>
+                    <FieldDescription>
+                      Select the name of the credential.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </FieldContent>
+                  <Select
+                    disabled={credentialsLoading || credentials?.length === 0}
+                    defaultValue={field.value}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="anthropic-form-credential-id"
+                      aria-invalid={fieldState.invalid}
+                      className="min-w-[120px]"
+                    >
+                      <SelectValue placeholder="Select a credential" />
+                    </SelectTrigger>
+                    <SelectContent position="item-aligned">
+                      {credentials?.map((credential) => (
+                        <SelectItem key={credential.id} value={credential.id}>
+                          <Image
+                            src="/logos/anthropic.svg"
+                            alt="anthropic"
+                            width={16}
+                            height={16}
+                          />
+                          {credential.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
               )}
             />

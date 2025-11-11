@@ -14,6 +14,7 @@ import {
 
 type OpenAiNodeData = {
   variableName?: string
+  credentialId?: string
   model?: (typeof AVAILABLE_MODELS)[number]
   userPrompt?: string
   systemPrompt?: string

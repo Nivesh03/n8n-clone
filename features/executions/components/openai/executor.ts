@@ -25,6 +25,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
   context,
   step,
   publish,
+  userId,
 }) => {
   await publish(
     openaiChannel().status({
@@ -40,7 +41,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
       }),
     )
     throw new NonRetriableError(
-      'Open AI Node: Missing properties. Variable name, user prompt, credentialId are required',
+      'OpenAI Node: Missing properties. Variable name, user prompt, credentialId are required',
     )
   }
   const systemPrompt = data.systemPrompt
@@ -51,6 +52,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
     return prisma.credential.findUnique({
       where: {
         id: data.credentialId,
+        userId,
       },
     })
   })

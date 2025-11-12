@@ -25,6 +25,12 @@ enum NodeType {
   GEMINI
 }
 
+enum ExecutionStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
 model User {
   id            String    @id
   name          String
@@ -117,6 +123,7 @@ model Workflow {
   user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
   nodes      Node[]
   connections Connection[]
+  executions  Execution[]
 }
 
 model Node {
@@ -155,4 +162,22 @@ model Connection {
   updatedAt  DateTime @updatedAt
 
   @@unique([fromNodeId, toNodeId, fromOutput, toInput])
+}
+
+model Execution {
+  id         String @id @default(cuid())
+  workflowId String
+  inngestEventId String @unique
+  
+  
+  error      String? @db.Text
+  errorStack String? @db.Text
+  output     Json?
+  
+  startedAt  DateTime @default(now())
+  completedAt DateTime?
+  
+  status     ExecutionStatus @default(RUNNING)
+  
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }

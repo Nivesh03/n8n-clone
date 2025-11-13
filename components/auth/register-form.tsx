@@ -7,9 +7,12 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { authClient } from '@/lib/auth-client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import z from 'zod'
 import { Button } from '../ui/button'
 import {
@@ -20,10 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card'
-import Link from 'next/link'
-import { authClient } from '@/lib/auth-client'
-import { toast } from 'sonner'
-import Image from 'next/image'
 
 const registerSchema = z
   .object({
@@ -47,18 +46,22 @@ const RegisterForm = () => {
     },
   })
   const onSubmit = async (data: RegisterSchema) => {
-    await authClient.signUp.email({
-      email: data.email,
-      name: data.email,
-      password: data.password,
-      callbackURL: '/',
-    }, {
-      onSuccess: () => {
-        router.push("/")
-      }, onError : (err) => {
-        toast.error(err.error.message)
-      }
-    })
+    await authClient.signUp.email(
+      {
+        email: data.email,
+        name: data.email,
+        password: data.password,
+        callbackURL: '/',
+      },
+      {
+        onSuccess: () => {
+          router.push('/')
+        },
+        onError: (err) => {
+          toast.error(err.error.message)
+        },
+      },
+    )
   }
   const isPending = form.formState.isSubmitting
   return (
@@ -71,24 +74,6 @@ const RegisterForm = () => {
         <CardContent>
           <form id="login-form" onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <Button
-                variant={'outline'}
-                type="button"
-                className="w-full"
-                disabled={isPending}
-              >
-                <Image src="/github.svg" width={20} height={20} alt='github logo' />
-                Continue with Github
-              </Button>
-              <Button
-                variant={'outline'}
-                type="button"
-                className="w-full"
-                disabled={isPending}
-              >
-                <Image src="/google.svg" width={20} height={20} alt='google logo' />
-                Continue with Google
-              </Button>
               <Controller
                 name="email"
                 control={form.control}
@@ -151,7 +136,12 @@ const RegisterForm = () => {
                 )}
               />
               <Field orientation="vertical">
-                <Button type="submit" form="login-form" className="w-full">
+                <Button
+                  type="submit"
+                  form="login-form"
+                  className="w-full"
+                  disabled={isPending}
+                >
                   Submit
                 </Button>
                 <div className="text-center text-sm">

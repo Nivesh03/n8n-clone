@@ -7,9 +7,13 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { authClient } from '@/lib/auth-client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import z from 'zod'
 import { Button } from '../ui/button'
 import {
@@ -20,10 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card'
-import Link from 'next/link'
-import { authClient } from '@/lib/auth-client'
-import { toast } from 'sonner'
-import Image from 'next/image'
 
 const loginSchema = z.object({
   email: z.email({ error: 'Please enter a valid email address' }),
@@ -56,6 +56,36 @@ const LoginForm = () => {
       },
     )
   }
+  const signInWithGithub = async () => {
+    await authClient.signIn.social(
+      {
+        provider: 'github',
+      },
+      {
+        onSuccess: () => {
+          router.push('/')
+        },
+        onError: ({ error }) => {
+          toast.error(error.message)
+        },
+      },
+    )
+  }
+  const signInWithGoogle = async () => {
+    await authClient.signIn.social(
+      {
+        provider: 'google',
+      },
+      {
+        onSuccess: () => {
+          router.push('/')
+        },
+        onError: ({ error }) => {
+          toast.error(error.message)
+        },
+      },
+    )
+  }
   const isPending = form.formState.isSubmitting
   return (
     <div className="flex flex-col gap-6">
@@ -72,8 +102,14 @@ const LoginForm = () => {
                 type="button"
                 className="w-full"
                 disabled={isPending}
+                onClick={signInWithGithub}
               >
-                <Image src="/github.svg" width={20} height={20} alt='github logo' />
+                <Image
+                  src="/github.svg"
+                  width={20}
+                  height={20}
+                  alt="github logo"
+                />
                 Continue with Github
               </Button>
               <Button
@@ -81,8 +117,14 @@ const LoginForm = () => {
                 type="button"
                 className="w-full"
                 disabled={isPending}
+                onClick={signInWithGoogle}
               >
-                <Image src="/google.svg" width={20} height={20} alt='google logo' />
+                <Image
+                  src="/google.svg"
+                  width={20}
+                  height={20}
+                  alt="google logo"
+                />
                 Continue with Google
               </Button>
               <Controller

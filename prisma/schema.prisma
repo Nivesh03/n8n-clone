@@ -7,6 +7,8 @@
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  engineType = "client"
 }
 
 datasource db {
@@ -98,7 +100,7 @@ model Credential {
   name       String
   value      String
   type       CredentialType
-  
+
   userId     String
   user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -168,16 +170,16 @@ model Execution {
   id         String @id @default(cuid())
   workflowId String
   inngestEventId String @unique
-  
-  
+
+
   error      String? @db.Text
   errorStack String? @db.Text
   output     Json?
-  
+
   startedAt  DateTime @default(now())
   completedAt DateTime?
-  
+
   status     ExecutionStatus @default(RUNNING)
-  
+
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }

@@ -1,6 +1,7 @@
 import type { NodeExecutor } from '@/features/executions/types'
 import { openaiChannel } from '@/inngest/channels/openai'
 import prisma from '@/lib/db'
+import { decrypt } from '@/lib/encryption'
 import { createOpenAI } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import handlebars from 'handlebars'
@@ -59,7 +60,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
   if (!credential)
     throw new NonRetriableError('OpenAI Node: Credential not found')
   const openai = createOpenAI({
-    apiKey: credential.value,
+    apiKey: decrypt(credential.value),
   })
 
   try {

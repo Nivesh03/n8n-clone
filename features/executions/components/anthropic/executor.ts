@@ -1,6 +1,7 @@
 import type { NodeExecutor } from '@/features/executions/types'
 import { anthropicChannel } from '@/inngest/channels/anthropic'
 import prisma from '@/lib/db'
+import { decrypt } from '@/lib/encryption'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { generateText } from 'ai'
 import handlebars from 'handlebars'
@@ -60,7 +61,7 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
     throw new NonRetriableError('Anthropic Node: Credential not found')
 
   const anthropic = createAnthropic({
-    apiKey: credential.value,
+    apiKey: decrypt(credential.value),
   })
 
   try {

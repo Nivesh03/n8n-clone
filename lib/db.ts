@@ -1,7 +1,10 @@
+import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from './generated/prisma/client'
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
+  const connectionString = `${process.env.DATABASE_URL}`
+  const adapter = new PrismaNeon({ connectionString })
+  return new PrismaClient({ adapter })
 }
 
 declare global {
